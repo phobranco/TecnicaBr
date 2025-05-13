@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Buscar Profissionais</title>
+</head>
+<body>
+  <h2>Buscar Profissionais</h2>
+  <input type="text" id="filtroCidade" placeholder="Filtrar por cidade">
+  <input type="text" id="filtroFuncao" placeholder="Filtrar por função">
+  <button onclick="buscar()">Buscar</button>
+
+  <div id="resultados"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7RbH-ffpHW2H88tsN7NL17Sfij1iPnDs",
+      authDomain: "tecnicabr-1a205.firebaseapp.com",
+      projectId: "tecnicabr-1a205",
+      storageBucket: "tecnicabr-1a205.firebasestorage.app",
+      messagingSenderId: "896892036410",
+      appId: "1:896892036410:web:5a95f7b68b98cbc528dc03",
+      measurementId: "G-9PPZQ0B26T"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function buscar() {
+      const cidadeFiltro = document.getElementById("filtroCidade").value.toLowerCase();
+      const funcaoFiltro = document.getElementById("filtroFuncao").value.toLowerCase();
+      const container = document.getElementById("resultados");
+      container.innerHTML = "Buscando...";
+
+      const snap = await db.collection("profissionais").get();
+      const lista = snap.docs.map(doc => doc.data());
+
+      const filtrados = lista.filter(p => {
+        const cidadeOk = !cidadeFiltro || p.cidade?.toLowerCase().includes(cidadeFiltro);
+        const funcaoOk = !funcaoFiltro || p.funcoes?.some(f => f.toLowerCase().includes(funcaoFiltro));
+        return cidadeOk && funcaoOk;
+      });
+
+      if (filtrados.length === 0) {
+        container.innerHTML = "Nenhum profissional encontrado.";
+        return;
+      }
+
+      container.innerHTML = filtrados.map(p => \`
+        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+          <strong>\${p.nome}</strong><br>
+          Funções: \${p.funcoes.join(", ")}<br>
+          Cidade: \${p.cidade} - \${p.estado}<br>
+          Currículo: \${p.curriculo}<br>
+          Idiomas: \${p.idiomas.join(", ")}<br>
+          Portfólio: \${p.portfolio.map(link => `<a href="\${link}" target="_blank">[link]</a>`).join(" ")}<br>
+          Contato: \${p.email} / \${p.telefone}
+        </div>
+      \`).join("");
+    }
+
+    buscar();
+  </script>
+</body>
+</html>

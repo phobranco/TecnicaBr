@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Profissional</title>
+</head>
+<body>
+  <h2>Cadastro de Profissional</h2>
+  <form id="cadastroForm">
+    <input type="text" placeholder="Nome" id="nome" required><br>
+    <input type="email" placeholder="Email" id="email" required><br>
+    <input type="text" placeholder="Telefone" id="telefone"><br>
+    <input type="text" placeholder="Cidade" id="cidade"><br>
+    <input type="text" placeholder="Estado" id="estado"><br>
+    <input type="text" placeholder="Funções (ex: técnico, luz...)" id="funcoes"><br>
+    <input type="text" placeholder="Idiomas (ex: português, inglês...)" id="idiomas"><br>
+    <textarea placeholder="Breve currículo" id="curriculo"></textarea><br>
+    <input type="text" placeholder="Portfólio (links separados por vírgula)" id="portfolio"><br>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7RbH-ffpHW2H88tsN7NL17Sfij1iPnDs",
+      authDomain: "tecnicabr-1a205.firebaseapp.com",
+      projectId: "tecnicabr-1a205",
+      storageBucket: "tecnicabr-1a205.firebasestorage.app",
+      messagingSenderId: "896892036410",
+      appId: "1:896892036410:web:5a95f7b68b98cbc528dc03",
+      measurementId: "G-9PPZQ0B26T"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const form = document.getElementById("cadastroForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const dados = {
+        nome: document.getElementById("nome").value,
+        email: document.getElementById("email").value,
+        telefone: document.getElementById("telefone").value,
+        cidade: document.getElementById("cidade").value,
+        estado: document.getElementById("estado").value,
+        funcoes: document.getElementById("funcoes").value.split(","),
+        idiomas: document.getElementById("idiomas").value.split(","),
+        curriculo: document.getElementById("curriculo").value,
+        portfolio: document.getElementById("portfolio").value.split(",")
+      };
+
+      try {
+        await db.collection("profissionais").add(dados);
+        alert("Cadastro feito com sucesso!");
+        form.reset();
+      } catch (error) {
+        alert("Erro ao cadastrar: " + error);
+      }
+    });
+  </script>
+</body>
+</html>
